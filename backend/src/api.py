@@ -33,7 +33,7 @@ app.logger.addHandler(error_log)
 def index():
     return jsonify({
         'success': True,
-        'message':'hello-coffee'})
+        'message':'hey there customer'})
 '''
 @TODO implement endpoint
     GET /drinks
@@ -44,11 +44,11 @@ def index():
 '''
 @app.route('/drinks', methods=['GET'])
 def get_drinks():
-    all_drinks = Drink.query.order_by(Drink.id).all()
+    all_drinks_query = Drink.query.order_by(Drink.id).all()
 
     return jsonify({
         'success': True,
-        'drinks': [drink.short() for drink in all_drinks]
+        'drinks': [drink.short() for drink in all_drinks_query]
     })
 
 
@@ -63,11 +63,11 @@ def get_drinks():
 @app.route('/drinks-detail', methods=['GET'])
 @requires_auth('get:drinks-detail')
 def get_drink_detail(jwt):
-    all_drinks = [drink.long() for drink in Drink.query.all()]
+    all_drinks_details = [drink.long() for drink in Drink.query.all()]
 
     return jsonify({
         'success': True,
-        'drinks': all_drinks
+        'drinks': all_drinks_details
     })
 
 '''
@@ -83,13 +83,17 @@ def get_drink_detail(jwt):
 @requires_auth('post:drinks')
 def post_drink(jwt):
     data = request.get_json()
+
+    #  If there are drinks with the same title and recipe, 
+    # then it will create a new Drink object that has both of those values 
+    # as well as an ID number for each one.
     if 'title' and 'recipe' not in data:
         abort(422)
 
     title = data['title']
-    recipe_json = json.dumps(data['recipe'])
+    recipes = json.dumps(data['recipe'])
 
-    drink = Drink(title=title, recipe=recipe_json)
+    drink = Drink(title=title, recipe=recipes)
 
     drink.insert()
 
@@ -112,23 +116,25 @@ def post_drink(jwt):
 '''
 @app.route('/drinks/<int:id>', methods=['PATCH'])
 @requires_auth('patch:drinks')
+# The next part of the code is where we define what happens when someone tries to update a drink.
 def update_drink(jwt, id):
-    drink = Drink.query.get(id)
-    if drink is None:
+    #  First, we check if there's any drinks with the given ID using Drink query object.
+    drink_query = Drink.query.get(id)
+    if drink_query is None:
         abort(404)
-
+    #  Otherwise, data from request is parsed into JSON format 
+    # and checked for title field value in case it exists on our database table.
     data = request.get_json()
     if 'title' in data:
-        drink.title = data['title']
+        drink_query.title = data['title']
 
     if 'recipe' in data:
-        drink.recipe = json.dumps(data['recipe'])
+        drink_query.recipe = json.dumps(data['recipe'])
 
-    drink.update()
-
+    drink_query.update()
     return jsonify({
         'success': True,
-        'drinks': [drink.long()]
+        'drinks': [drink_query.long()]
     })
 
 
@@ -174,7 +180,7 @@ def unprocessable(error):
     return jsonify({
                     "success": False, 
                     "error": 422,
-                    "message": "unprocessable"
+                    "message": "entity is unprocessable"
                     }), 422
 
 '''
