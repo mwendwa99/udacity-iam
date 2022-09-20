@@ -7,10 +7,10 @@ import logging
 from logging import FileHandler, Formatter
 
 
-AUTH0_DOMAIN = 'tomariken.auth0.com'
+AUTH0_DOMAIN = 'dev-p2nopehd.eu.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'coffee'
-CLIENT_ID = 'cHFNPBIZa8prSwoLILoZycrqJC4vE9cW'
+API_AUDIENCE = 'cshop-api'
+CLIENT_ID = 'L1kX5iIBSpHymRAdMqhCSHz95uEhijEB'
 
 # Set up logging
 '''
